@@ -22,6 +22,8 @@ El código se administrará en GitHub con una rama principal llamada
 main y una rama por integrante.
 
 ## 2. Integrantes del equipo
+| Nombre completo |
+|---|
 Cabanzo Torres Carlos
 Camal García Diego Alejandro
 García Nuñez Axel Alfonso
@@ -31,6 +33,7 @@ Salas Loaeza Itzel Guadalupe
 ## 3. Primeros cinco requerimientos
 
 | ID | Requerimiento | Criterio de aceptación |
+|---|---|---|
 | RF01 |El sistema permitirá al usuario registrar, consultar, actualizar y eliminar libros.| Las cuatro operaciones funcionan y permiten identificar cada libro por su ID. |
 | RF02 | Registrar, consultar, actualizar y eliminar usuarios. | Las cuatro operaciones funcionan y no se permiten correos duplicados. |
 | RF03 | Registrar, consultar, actualizar y eliminar préstamos. | Cada préstamo se relaciona con un libro y un usuario existentes. |
