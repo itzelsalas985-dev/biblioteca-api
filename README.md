@@ -40,6 +40,42 @@ Salas Loaeza Itzel Guadalupe
 | RF04 | Validar la disponibilidad de los libros. | No se permite prestar un libro que ya tiene un préstamo activo. |
 | RF05 | Registrar devoluciones. | Al devolver un libro, el préstamo finaliza y el libro vuelve a estar disponible. |
 
+## 3.1. Modelo Entidad-Relación y Relaciones 1 a Muchos
+
+A continuación se muestra el diagrama que representa las relaciones de uno a muchos (1:N) implementadas mediante colecciones de objetos en el proyecto:
+
+```mermaid
+erDiagram
+    EDITORIAL ||--o{ LIBRO : "publica (1 a N)"
+    USUARIO ||--o{ PRESTAMO : "solicita (1 a N)"
+    LIBRO ||--o{ PRESTAMO : "incluye (1 a N)"
+
+    EDITORIAL {
+        Long id PK
+        String nombre
+    }
+
+    LIBRO {
+        Long id PK
+        String titulo
+        Boolean disponibilidad
+        Long editorial_id FK
+    }
+
+    USUARIO {
+        Long id PK
+        String nombre
+        String correo
+    }
+
+    PRESTAMO {
+        Long id PK
+        Date fecha_prestamo
+        Date fecha_devolucion
+        Long usuario_id FK
+        Long libro_id FK
+    }
+```
 
 ## 4. Funcionalidades que pueden resolverse con paquetes
 
