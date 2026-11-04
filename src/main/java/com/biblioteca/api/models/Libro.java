@@ -12,7 +12,7 @@ public class Libro {
     
     private String titulo;
 
-    // Relación Muchos a 1: Muchos libros pertenecen a una sola Editorial
+    // Relación Muchos a Uno: muchos libros pertenecen a una sola Editorial
     @ManyToOne
     @JoinColumn(name = "editorial_id")
     private Editorial editorial;
