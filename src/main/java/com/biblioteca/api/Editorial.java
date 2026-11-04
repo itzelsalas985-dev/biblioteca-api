@@ -1,40 +1,32 @@
 package com.biblioteca.api.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
+@Table(name = "editoriales")
 public class Editorial {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     private String nombre;
-    private String pais;
 
-    public Editorial() {
-    }
+    // Relación 1 a Muchos: Una editorial contiene una lista de libros dentro de ella
+    @OneToMany(mappedBy = "editorial", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Libro> libros = new ArrayList<>();
 
-    public Long getId() {
-        return id;
-    }
+    // Constructores, Getters y Setters
+    public Editorial() {}
 
-    public String getNombre() {
-        return nombre;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getPais() {
-        return pais;
-    }
-
-    public void setPais(String pais) {
-        this.pais = pais;
-    }
+    public List<Libro> getLibros() { return libros; }
+    public void setLibros(List<Libro> libros) { this.libros = libros; }
 }
