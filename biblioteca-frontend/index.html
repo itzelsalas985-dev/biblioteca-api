@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookSpace | Sistema de Biblioteca</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">B</div>
+            <div><h2>BookSpace</h2><span>Sistema de biblioteca</span></div>
+        </div>
+        <p class="menu-label">MENÚ</p>
+        <nav class="navigation">
+            <button class="nav-item active" data-section="dashboard"><span>🏠</span> Inicio</button>
+            <button class="nav-item" data-section="libros"><span>📚</span> Libros</button>
+            <button class="nav-item" data-section="usuarios"><span>👥</span> Socios</button>
+            <button class="nav-item" data-section="prestamos"><span>🔄</span> Préstamos</button>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="status-dot"></div>
+            <div><strong>Sistema activo</strong><small>BookSpace v1.0</small></div>
+        </div>
+    </aside>
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <p class="breadcrumb" id="breadcrumb">BookSpace / Inicio</p>
+                <h1 id="page-title">Inicio</h1>
+            </div>
+            <div class="profile">
+                <div class="profile-avatar">AD</div>
+                <div><strong>Administrador</strong><small>Bibliotecario</small></div>
+            </div>
+        </header>
+
+        <section id="dashboard" class="page-section">
+            <div class="welcome-card">
+                <div>
+                    <span class="welcome-tag">PANEL DE CONTROL</span>
+                    <h2>Bienvenido a BookSpace</h2>
+                    <p>Administra libros, socios y préstamos<br>desde un solo lugar.</p>
+                </div>
+                <div class="welcome-decoration">📖</div>
+            </div>
+            <div class="section-heading">
+                <h2>Resumen general</h2>
+                <p>Datos en tiempo real de tu biblioteca</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon blue">📚</div><span>Total de libros</span><h3 id="stat-libros">0</h3><small>Registrados en el sistema</small></div>
+                <div class="stat-card"><div class="stat-icon purple">👥</div><span>Socios</span><h3 id="stat-usuarios">0</h3><small>Miembros registrados</small></div>
+                <div class="stat-card"><div class="stat-icon green">✅</div><span>Disponibles</span><h3 id="stat-disponibles">0</h3><small>Listos para prestar</small></div>
+                <div class="stat-card"><div class="stat-icon orange">🔄</div><span>Préstamos</span><h3 id="stat-prestamos">0</h3><small>En curso</small></div>
+            </div>
+            <div class="bottom-grid">
+                <div class="panel">
+                    <div class="panel-header"><h3>Acciones rápidas</h3><p>Atajos para las tareas más comunes</p></div>
+                    <div class="quick-actions">
+                        <button id="quick-add-libro">➕ Agregar libro</button>
+                        <button data-goto="libros">📚 Ver libros</button>
+                        <button data-goto="usuarios">👥 Ver socios</button>
+                        <button data-goto="prestamos">🔄 Ver préstamos</button>
+                    </div>
+                </div>
+                <div class="panel api-panel">
+                    <div class="panel-header"><h3>Estado de la API</h3><p>Conexión con tu servidor Spring Boot</p></div>
+                    <div class="api-status">
+                        <div class="api-indicator offline" id="api-indicator"></div>
+                        <span id="api-text">Comprobando conexión...</span>
+                    </div>
+                    <small id="api-url">—</small>
+                </div>
+            </div>
+        </section>
+
+        <section id="libros" class="page-section" style="display:none;">
+            <div class="page-panel">
+                <div class="page-panel-header">
+                    <div><h2>Catálogo de libros</h2><p>Gestiona todos los libros de la biblioteca</p></div>
+                    <button class="btn-primary" id="btn-nuevo-libro">+ Nuevo libro</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>ID</th><th>Título</th><th>Editorial</th></tr></thead>
+                        <tbody id="tabla-libros"><tr><td colspan="3" class="loading-message">Cargando...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="usuarios" class="page-section" style="display:none;">
+            <div class="page-panel">
+                <div class="page-panel-header">
+                    <div><h2>Socios</h2><p>Miembros registrados en la biblioteca</p></div>
+                    <button class="btn-primary" id="btn-nuevo-socio">+ Nuevo socio</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Acciones</th></tr></thead>
+                        <tbody id="tabla-usuarios"><tr><td colspan="4" class="empty-message">Aún no hay datos.</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="prestamos" class="page-section" style="display:none;">
+            <div class="page-panel">
+                <div class="page-panel-header">
+                    <div><h2>Préstamos</h2><p>Control de libros prestados y devoluciones</p></div>
+                    <button class="btn-primary" id="btn-nuevo-prestamo">+ Nuevo préstamo</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>ID</th><th>Libro</th><th>Fecha préstamo</th><th>Fecha devolución</th><th>Estado</th></tr></thead>
+                        <tbody id="tabla-prestamos"><tr><td colspan="5" class="empty-message">Aún no hay datos.</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<div class="modal-overlay" id="modal-libro">
+    <div class="modal">
+        <div class="modal-header">
+            <div><h2 id="modal-titulo">Nuevo libro</h2><p>Completa los datos del libro</p></div>
+            <button type="button" class="close-modal" id="cerrar-modal">&times;</button>
+        </div>
+        <form id="form-libro">
+            <div class="field">
+                <label for="libro-titulo">Título</label>
+                <input type="text" id="libro-titulo" placeholder="Ej. Cien años de soledad" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="cancelar-modal">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-socio">
+    <div class="modal">
+        <div class="modal-header">
+            <div><h2 id="modal-socio-titulo">Nuevo socio</h2><p>Completa los datos del socio</p></div>
+            <button type="button" class="close-modal" id="cerrar-modal-socio">&times;</button>
+        </div>
+        <form id="form-socio">
+            <input type="hidden" id="socio-id">
+            <div class="field">
+                <label for="socio-nombre">Nombre</label>
+                <input type="text" id="socio-nombre" placeholder="Ej. María López" required>
+            </div>
+            <div class="field">
+                <label for="socio-correo">Correo</label>
+                <input type="email" id="socio-correo" placeholder="Ej. maria@correo.com" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="cancelar-modal-socio">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-prestamo">
+    <div class="modal">
+        <div class="modal-header">
+            <div><h2>Nuevo préstamo</h2><p>Elige el libro a prestar</p></div>
+            <button type="button" class="close-modal" id="cerrar-modal-prestamo">&times;</button>
+        </div>
+        <form id="form-prestamo">
+            <div class="field">
+                <label for="prestamo-libro">Libro</label>
+                <select id="prestamo-libro" required style="width:100%;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:12px;"></select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="cancelar-modal-prestamo">Cancelar</button>
+                <button type="submit" class="btn-primary">Registrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
