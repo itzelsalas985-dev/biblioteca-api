@@ -234,6 +234,40 @@ async function eliminarSocio(id) {
     }
 }
 
+/* ---------- Modal de préstamo ---------- */
+
+function abrirModalPrestamo() {
+    if (libros.length === 0) {
+        toast("Primero registra un libro");
+        return;
+    }
+    $("#prestamo-libro").innerHTML = libros
+        .map((l) => `<option value="${escapeHtml(l.id)}">${escapeHtml(l.titulo)}</option>`)
+        .join("");
+    $("#modal-prestamo").classList.add("show");
+}
+
+function cerrarModalPrestamo() {
+    $("#modal-prestamo").classList.remove("show");
+}
+
+async function guardarPrestamo(evento) {
+    evento.preventDefault();
+    const libroId = Number($("#prestamo-libro").value);
+    const hoy = new Date().toISOString().slice(0, 10);
+
+    try {
+        await API.crearPrestamo({ libro: { id: libroId }, fechaPrestamo: hoy });
+        cerrarModalPrestamo();
+        toast("🔄 Préstamo registrado");
+        prestamos = await API.getPrestamos();
+        renderPrestamos();
+        renderEstadisticas();
+    } catch (error) {
+        toast("❌ " + error.message);
+    }
+}
+
 /* ---------- Eventos ---------- */
 
 function iniciarEventos() {
@@ -279,6 +313,15 @@ function iniciarEventos() {
         }
         if (btnEliminar) eliminarSocio(btnEliminar.dataset.eliminar);
     });
+
+    // Préstamos
+    $("#btn-nuevo-prestamo").addEventListener("click", abrirModalPrestamo);
+    $("#cerrar-modal-prestamo").addEventListener("click", cerrarModalPrestamo);
+    $("#cancelar-modal-prestamo").addEventListener("click", cerrarModalPrestamo);
+    $("#modal-prestamo").addEventListener("click", (e) => {
+        if (e.target.id === "modal-prestamo") cerrarModalPrestamo();
+    });
+    $("#form-prestamo").addEventListener("submit", guardarPrestamo);
 }
 
 /* ---------- Inicio ---------- */
