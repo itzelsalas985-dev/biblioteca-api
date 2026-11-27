@@ -1,14 +1,65 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" translate="no">
 <head>
     <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BookSpace | Sistema de Biblioteca</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-<div class="app-container">
+
+<!-- ---------- Pantalla de inicio de sesión ---------- -->
+<div class="login-screen" id="login-screen">
+    <div class="login-card">
+        <div class="login-brand">
+            <div class="brand-icon">B</div>
+            <div><h2>BookSpace</h2><span>Sistema de biblioteca</span></div>
+        </div>
+
+        <form id="form-login">
+            <h1>Iniciar sesión</h1>
+            <p class="login-subtitle">Entra con tu cuenta de bibliotecario</p>
+            <div class="field">
+                <label for="login-correo">Correo</label>
+                <input type="email" id="login-correo" placeholder="admin@biblioteca.com" autocomplete="username" required>
+            </div>
+            <div class="field">
+                <label for="login-password">Contraseña</label>
+                <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required>
+            </div>
+            <p class="login-error" id="login-error"></p>
+            <button type="submit" class="btn-primary btn-block">Entrar</button>
+            <p class="login-switch">¿No tienes cuenta? <button type="button" class="link" id="ir-registro">Regístrate</button></p>
+        </form>
+
+        <form id="form-registro" style="display:none;">
+            <h1>Crear cuenta</h1>
+            <p class="login-subtitle">Registra un nuevo bibliotecario</p>
+            <div class="field">
+                <label for="registro-nombre">Nombre</label>
+                <input type="text" id="registro-nombre" placeholder="Ej. Axel García" required>
+            </div>
+            <div class="field">
+                <label for="registro-correo">Correo</label>
+                <input type="email" id="registro-correo" placeholder="tu@correo.com" autocomplete="username" required>
+            </div>
+            <div class="field">
+                <label for="registro-password">Contraseña</label>
+                <input type="password" id="registro-password" placeholder="Mínimo 6 caracteres" minlength="6" autocomplete="new-password" required>
+            </div>
+            <p class="login-error" id="registro-error"></p>
+            <button type="submit" class="btn-primary btn-block">Crear cuenta</button>
+            <p class="login-switch">¿Ya tienes cuenta? <button type="button" class="link" id="ir-login">Inicia sesión</button></p>
+        </form>
+
+        <small class="login-api" id="login-api"></small>
+    </div>
+</div>
+
+<!-- ---------- Aplicación ---------- -->
+<div class="app-container" id="app" style="display:none;">
     <aside class="sidebar">
         <div class="brand">
             <div class="brand-icon">B</div>
@@ -21,9 +72,14 @@
             <button class="nav-item" data-section="usuarios"><span>👥</span> Socios</button>
             <button class="nav-item" data-section="prestamos"><span>🔄</span> Préstamos</button>
         </nav>
+        <p class="menu-label menu-label-spaced">CATÁLOGOS</p>
+        <nav class="navigation">
+            <button class="nav-item" data-section="editoriales"><span>🏢</span> Editoriales</button>
+            <button class="nav-item" data-section="autores"><span>✍️</span> Autores</button>
+        </nav>
         <div class="sidebar-footer">
             <div class="status-dot"></div>
-            <div><strong>Sistema activo</strong><small>BookSpace v1.0</small></div>
+            <div><strong>Sistema activo</strong><small>BookSpace v1.1</small></div>
         </div>
     </aside>
     <main class="main-content">
@@ -33,8 +89,9 @@
                 <h1 id="page-title">Inicio</h1>
             </div>
             <div class="profile">
-                <div class="profile-avatar">AD</div>
-                <div><strong>Administrador</strong><small>Bibliotecario</small></div>
+                <div class="profile-avatar" id="perfil-iniciales">AD</div>
+                <div><strong id="perfil-nombre">Administrador</strong><small id="perfil-rol">Bibliotecario</small></div>
+                <button class="btn-logout" id="btn-logout" title="Cerrar sesión">Salir</button>
             </div>
         </header>
 
@@ -42,7 +99,7 @@
             <div class="welcome-card">
                 <div>
                     <span class="welcome-tag">PANEL DE CONTROL</span>
-                    <h2>Bienvenido a BookSpace</h2>
+                    <h2 id="bienvenida">Bienvenido a BookSpace</h2>
                     <p>Administra libros, socios y préstamos<br>desde un solo lugar.</p>
                 </div>
                 <div class="welcome-decoration">📖</div>
@@ -62,9 +119,9 @@
                     <div class="panel-header"><h3>Acciones rápidas</h3><p>Atajos para las tareas más comunes</p></div>
                     <div class="quick-actions">
                         <button id="quick-add-libro">➕ Agregar libro</button>
-                        <button data-goto="libros">📚 Ver libros</button>
+                        <button id="quick-add-prestamo">🔄 Nuevo préstamo</button>
                         <button data-goto="usuarios">👥 Ver socios</button>
-                        <button data-goto="prestamos">🔄 Ver préstamos</button>
+                        <button data-goto="editoriales">🏢 Ver catálogos</button>
                     </div>
                 </div>
                 <div class="panel api-panel">
@@ -86,8 +143,8 @@
                 </div>
                 <div class="table-container">
                     <table>
-                        <thead><tr><th>ID</th><th>Título</th><th>Editorial</th></tr></thead>
-                        <tbody id="tabla-libros"><tr><td colspan="3" class="loading-message">Cargando...</td></tr></tbody>
+                        <thead><tr><th>ID</th><th>Título</th><th>Editorial</th><th>Autores</th><th>Estado</th><th>Acciones</th></tr></thead>
+                        <tbody id="tabla-libros"><tr><td colspan="6" class="loading-message">Cargando...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -101,8 +158,8 @@
                 </div>
                 <div class="table-container">
                     <table>
-                        <thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Acciones</th></tr></thead>
-                        <tbody id="tabla-usuarios"><tr><td colspan="4" class="empty-message">Aún no hay datos.</td></tr></tbody>
+                        <thead><tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Préstamos activos</th><th>Acciones</th></tr></thead>
+                        <tbody id="tabla-usuarios"><tr><td colspan="5" class="loading-message">Cargando...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -116,8 +173,38 @@
                 </div>
                 <div class="table-container">
                     <table>
-                        <thead><tr><th>ID</th><th>Libro</th><th>Fecha préstamo</th><th>Fecha devolución</th><th>Estado</th></tr></thead>
-                        <tbody id="tabla-prestamos"><tr><td colspan="5" class="empty-message">Aún no hay datos.</td></tr></tbody>
+                        <thead><tr><th>ID</th><th>Libro</th><th>Socio</th><th>Fecha préstamo</th><th>Fecha límite</th><th>Devolución</th><th>Estado</th><th>Acciones</th></tr></thead>
+                        <tbody id="tabla-prestamos"><tr><td colspan="8" class="loading-message">Cargando...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="editoriales" class="page-section" style="display:none;">
+            <div class="page-panel">
+                <div class="page-panel-header">
+                    <div><h2>Editoriales</h2><p>Catálogo del administrador</p></div>
+                    <button class="btn-primary" id="btn-nueva-editorial">+ Nueva editorial</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>ID</th><th>Nombre</th><th>País</th><th>Libros</th><th>Acciones</th></tr></thead>
+                        <tbody id="tabla-editoriales"><tr><td colspan="5" class="loading-message">Cargando...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="autores" class="page-section" style="display:none;">
+            <div class="page-panel">
+                <div class="page-panel-header">
+                    <div><h2>Autores</h2><p>Catálogo del administrador</p></div>
+                    <button class="btn-primary" id="btn-nuevo-autor">+ Nuevo autor</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>ID</th><th>Nombre</th><th>Nacionalidad</th><th>Libros</th><th>Acciones</th></tr></thead>
+                        <tbody id="tabla-autores"><tr><td colspan="5" class="loading-message">Cargando...</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -125,19 +212,29 @@
     </main>
 </div>
 
+<!-- ---------- Modales ---------- -->
 <div class="modal-overlay" id="modal-libro">
     <div class="modal">
         <div class="modal-header">
-            <div><h2 id="modal-titulo">Nuevo libro</h2><p>Completa los datos del libro</p></div>
-            <button type="button" class="close-modal" id="cerrar-modal">&times;</button>
+            <div><h2 id="modal-libro-titulo">Nuevo libro</h2><p>Completa los datos del libro</p></div>
+            <button type="button" class="close-modal" data-cerrar="modal-libro">&times;</button>
         </div>
         <form id="form-libro">
+            <input type="hidden" id="libro-id">
             <div class="field">
                 <label for="libro-titulo">Título</label>
                 <input type="text" id="libro-titulo" placeholder="Ej. Cien años de soledad" required>
             </div>
+            <div class="field">
+                <label for="libro-editorial">Editorial</label>
+                <select id="libro-editorial"></select>
+            </div>
+            <div class="field">
+                <label>Autores</label>
+                <div class="check-list" id="libro-autores"></div>
+            </div>
             <div class="modal-actions">
-                <button type="button" class="btn-cancel" id="cancelar-modal">Cancelar</button>
+                <button type="button" class="btn-cancel" data-cerrar="modal-libro">Cancelar</button>
                 <button type="submit" class="btn-primary">Guardar</button>
             </div>
         </form>
@@ -148,7 +245,7 @@
     <div class="modal">
         <div class="modal-header">
             <div><h2 id="modal-socio-titulo">Nuevo socio</h2><p>Completa los datos del socio</p></div>
-            <button type="button" class="close-modal" id="cerrar-modal-socio">&times;</button>
+            <button type="button" class="close-modal" data-cerrar="modal-socio">&times;</button>
         </div>
         <form id="form-socio">
             <input type="hidden" id="socio-id">
@@ -161,7 +258,7 @@
                 <input type="email" id="socio-correo" placeholder="Ej. maria@correo.com" required>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn-cancel" id="cancelar-modal-socio">Cancelar</button>
+                <button type="button" class="btn-cancel" data-cerrar="modal-socio">Cancelar</button>
                 <button type="submit" class="btn-primary">Guardar</button>
             </div>
         </form>
@@ -171,17 +268,73 @@
 <div class="modal-overlay" id="modal-prestamo">
     <div class="modal">
         <div class="modal-header">
-            <div><h2>Nuevo préstamo</h2><p>Elige el libro a prestar</p></div>
-            <button type="button" class="close-modal" id="cerrar-modal-prestamo">&times;</button>
+            <div><h2>Nuevo préstamo</h2><p>Elige el libro y el socio</p></div>
+            <button type="button" class="close-modal" data-cerrar="modal-prestamo">&times;</button>
         </div>
         <form id="form-prestamo">
             <div class="field">
-                <label for="prestamo-libro">Libro</label>
-                <select id="prestamo-libro" required style="width:100%;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:12px;"></select>
+                <label for="prestamo-libro">Libro (solo disponibles)</label>
+                <select id="prestamo-libro" required></select>
+            </div>
+            <div class="field">
+                <label for="prestamo-socio">Socio</label>
+                <select id="prestamo-socio" required></select>
+            </div>
+            <div class="field">
+                <label for="prestamo-limite">Fecha límite de devolución</label>
+                <input type="date" id="prestamo-limite" required>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn-cancel" id="cancelar-modal-prestamo">Cancelar</button>
+                <button type="button" class="btn-cancel" data-cerrar="modal-prestamo">Cancelar</button>
                 <button type="submit" class="btn-primary">Registrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-editorial">
+    <div class="modal">
+        <div class="modal-header">
+            <div><h2 id="modal-editorial-titulo">Nueva editorial</h2><p>Completa los datos de la editorial</p></div>
+            <button type="button" class="close-modal" data-cerrar="modal-editorial">&times;</button>
+        </div>
+        <form id="form-editorial">
+            <input type="hidden" id="editorial-id">
+            <div class="field">
+                <label for="editorial-nombre">Nombre</label>
+                <input type="text" id="editorial-nombre" placeholder="Ej. Planeta" required>
+            </div>
+            <div class="field">
+                <label for="editorial-pais">País</label>
+                <input type="text" id="editorial-pais" placeholder="Ej. México">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" data-cerrar="modal-editorial">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-autor">
+    <div class="modal">
+        <div class="modal-header">
+            <div><h2 id="modal-autor-titulo">Nuevo autor</h2><p>Completa los datos del autor</p></div>
+            <button type="button" class="close-modal" data-cerrar="modal-autor">&times;</button>
+        </div>
+        <form id="form-autor">
+            <input type="hidden" id="autor-id">
+            <div class="field">
+                <label for="autor-nombre">Nombre</label>
+                <input type="text" id="autor-nombre" placeholder="Ej. Juan Rulfo" required>
+            </div>
+            <div class="field">
+                <label for="autor-nacionalidad">Nacionalidad</label>
+                <input type="text" id="autor-nacionalidad" placeholder="Ej. Mexicana">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" data-cerrar="modal-autor">Cancelar</button>
+                <button type="submit" class="btn-primary">Guardar</button>
             </div>
         </form>
     </div>
