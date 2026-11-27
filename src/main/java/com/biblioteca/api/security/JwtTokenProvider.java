@@ -1,50 +1,60 @@
-package com.biblioteca.api.security; 
+package com.biblioteca.api.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
 
-    // Clave secreta segura para firmar los tokens (mínimo 256 bits)
-    private final SecretKey jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    private final int jwtExpirationInMs = 86400000; // 1 día de duración
+    // La clave sale de application.properties (o de la variable JWT_SECRET),
+    // así los tokens siguen siendo válidos aunque se reinicie la API.
+    private final SecretKey clave;
+    private final long expiracionMs;
 
-    // Generar el token a partir del nombre de usuario
-    public String generarToken(String username) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secreto,
+                            @Value("${jwt.expiration-ms:3600000}") long expiracionMs) {
+        if (secreto.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException("jwt.secret debe tener al menos 32 caracteres");
+        }
+        this.clave = Keys.hmacShaKeyFor(secreto.getBytes(StandardCharsets.UTF_8));
+        this.expiracionMs = expiracionMs;
+    }
+
+    // Generar el token con el correo como "subject" y el rol como dato extra
+    public String generarToken(String correo, String rol) {
         Date ahora = new Date();
-        Date fechaExpiracion = new Date(ahora.getTime() + jwtExpirationInMs);
-
         return Jwts.builder()
-                .subject(username)
+                .subject(correo)
+                .claim("rol", rol)
                 .issuedAt(ahora)
-                .expiration(fechaExpiracion)
-                .signWith(jwtSecret)
+                .expiration(new Date(ahora.getTime() + expiracionMs))
+                .signWith(clave)
                 .compact();
     }
 
-    // Obtener el usuario a partir del token
-    public String obtenerUsernameDelToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(jwtSecret)
+    // Leer los datos del token (lanza excepción si es inválido o expiró)
+    public Claims leerToken(String token) {
+        return Jwts.parser()
+                .verifyWith(clave)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-
-        return claims.getSubject();
     }
 
-    // Validar que el token sea correcto y no haya expirado
-    public boolean validarToken(String authToken) {
+    public boolean validarToken(String token) {
         try {
-            Jwts.parser().verifyWith(jwtSecret).build().parseSignedClaims(authToken);
+            leerToken(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("Token JWT inválido: " + e.getMessage());
+            return false;
         }
-        return false;
     }
 }
