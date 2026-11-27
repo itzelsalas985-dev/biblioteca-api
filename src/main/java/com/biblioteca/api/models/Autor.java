@@ -1,6 +1,8 @@
 package com.biblioteca.api.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,12 +17,19 @@ public class Autor {
     private String nombre;
     private String nacionalidad;
 
+    // Lado inverso de la relación N a M con Libro.
+    // @JsonIgnore evita la recursión infinita Libro -> Autor -> Libro -> ...
     @ManyToMany(mappedBy = "autores")
+    @JsonIgnore
     private Set<Libro> libros = new HashSet<>();
 
     public Autor() {}
 
-    // Getters y Setters
+    public Autor(String nombre, String nacionalidad) {
+        this.nombre = nombre;
+        this.nacionalidad = nacionalidad;
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
