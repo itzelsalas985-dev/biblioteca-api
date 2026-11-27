@@ -1,7 +1,11 @@
 package com.biblioteca.api.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -11,15 +15,16 @@ public class Libro {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String titulo;
 
-    // Relación Muchos a Uno: muchos libros pertenecen a una sola Editorial
+    // Relación N a 1: muchos libros pertenecen a una sola editorial (llave foránea editorial_id).
     @ManyToOne
     @JoinColumn(name = "editorial_id")
     private Editorial editorial;
 
-    // Relación Muchos a Muchos: un libro puede tener varios autores y un autor varios libros
+    // Relación N a M: un libro puede tener varios autores y un autor varios libros.
+    // Hibernate crea la tabla intermedia libro_autor (libro_id, autor_id).
     @ManyToMany
     @JoinTable(
         name = "libro_autor",
@@ -28,7 +33,12 @@ public class Libro {
     )
     private Set<Autor> autores = new HashSet<>();
 
-    // Constructores
+    // Relación 1 a N: un libro tiene muchos préstamos a lo largo del tiempo.
+    // Si se borra el libro, se borra su historial de préstamos.
+    @OneToMany(mappedBy = "libro", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonIgnore
+    private List<Prestamo> prestamos = new ArrayList<>();
+
     public Libro() {}
 
     public Libro(String titulo, Editorial editorial) {
@@ -36,7 +46,6 @@ public class Libro {
         this.editorial = editorial;
     }
 
-    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -48,4 +57,7 @@ public class Libro {
 
     public Set<Autor> getAutores() { return autores; }
     public void setAutores(Set<Autor> autores) { this.autores = autores; }
+
+    public List<Prestamo> getPrestamos() { return prestamos; }
+    public void setPrestamos(List<Prestamo> prestamos) { this.prestamos = prestamos; }
 }
